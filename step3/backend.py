@@ -52,7 +52,6 @@ def chunk_text(text):
     return chunks 
 
 def embed_text(texts):
-    # CORREGIDO: Usamos el modelo oficial actual para embeddings
     response = client.models.embed_content(
         model="gemini-embedding-001",
         contents=texts
