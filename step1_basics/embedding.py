@@ -7,15 +7,15 @@ client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 sentences = [
     "The dog ran across the park.",
-    "A puppy sprinted through the garden.",  # Similar to #1
-    "The quarterly earnings report is due.",   # Very different
+    "A puppy sprinted through the garden.",  
+    "The quarterly earnings report is due.",   
 ]
 
 embeddings = []
 
 for sentence in sentences:
     response = client.models.embed_content(
-        model="gemini-embedding-001",  # Usamos el modelo que descubrimos
+        model="gemini-embedding-001",  
         contents=sentence,
     )
     # Extraemos los valores del embedding
