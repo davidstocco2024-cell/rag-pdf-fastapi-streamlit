@@ -37,7 +37,6 @@ print(f"Stored {len(documents)} documents in ChromaDB\n")
 # — STEP 4: Ask a question —
 question = "How long do I have to return something?"
 
-# 1. Convertimos la pregunta en un embedding usando Gemini
 q_response = client.models.embed_content(
     model="gemini-embedding-001",
     contents=question,
@@ -68,7 +67,6 @@ Context:
 Question: {question}
 Answer:"""
 
-# 3. Generamos la respuesta final utilizando Gemini (adaptado del chat.completions del video)
 response = client.models.generate_content(
     model="gemini-2.5-flash",
     contents=prompt,
