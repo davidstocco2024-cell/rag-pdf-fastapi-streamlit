@@ -29,19 +29,19 @@ def chunk_text(text, chunk_size, overlap):
     while start < len(text):
         end = start + chunk_size 
         chunk = text[start:end]
-        chunks.append(chunk)  # <-- Corregido: se agrega el fragmento a la lista 'chunks'
+        chunks.append(chunk)  
 
         start += chunk_size - overlap 
 
     return chunks
 
 def embed_text(texts):
-    # Usamos el cliente de Gemini y el modelo de embeddings correcto
+
     response = client.models.embed_content(
         model="gemini-embedding-001",
         contents=texts,
     )
-    # Extraemos los valores vectoriales de la respuesta
+    
     return [e.values for e in response.embeddings]
 
 def index_pdf(pdf_path):
@@ -52,7 +52,7 @@ def index_pdf(pdf_path):
     except:
         pass
     
-    # Corregido: create_collection (con doble 'l')
+    
     collection = chroma_client.create_collection("pdf_rag")
 
     pages = extract_text_from_pdf(pdf_path)
@@ -63,10 +63,10 @@ def index_pdf(pdf_path):
     chunk_index = 0
 
     for page_num, page_text in pages:
-        # Corregido: Pasamos los parámetros necesarios
+        
         chunks = chunk_text(page_text, CHUNK_SIZE, CHUNK_OVERLAP)
 
-        # Corregido: Iteramos sobre cada chunk de la lista
+        
         for chunk in chunks:
             if len(chunk.strip()) < 30:
                 continue
@@ -92,7 +92,7 @@ def index_pdf(pdf_path):
         all_embeddings.extend(batch_embeddings)
         print(f" -> Embedded batch {i // BATCH_SIZE + 1} ({len(batch)} chunks)")
 
-    # Guardamos todo en ChromaDB usando la lista completa de embeddings generados por lotes
+    
     collection.add(
         documents=all_chunks,
         embeddings=all_embeddings,
@@ -104,10 +104,9 @@ def index_pdf(pdf_path):
     return collection
 
 def ask(collection, question, n_results=3):
-    # Convertimos la pregunta en embedding
     question_embedding = embed_text(question)[0]
 
-    # Corregido: 'query_embeddings' (plural) y 'n_results' recibido por parámetro
+    
     results = collection.query(
         query_embeddings=[question_embedding],
         n_results=n_results,
@@ -118,10 +117,9 @@ def ask(collection, question, n_results=3):
     metadatas = results["metadatas"][0]
     distances = results["distances"][0]
     
-    # Construimos el contexto con los fragmentos encontrados
     context = "\n\n".join(chunks)
     
-    # Armamos el prompt para el "inspector" (Gemini)
+    
     prompt = f"""You are a helpful assistant. Answer the question using ONLY the context below.
 Always mention the page the answer came from if possible.
 If the answer is not in the context, say "I don't know."
@@ -132,7 +130,7 @@ Context:
 Question: {question}
 Answer:"""
 
-    # Generamos la respuesta final
+
     response = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=prompt,
