@@ -12,7 +12,6 @@ st.set_page_config(
 st.title("Chat with your PDFs")
 st.caption("Powered by RAG - Retrieval Augmented Generation")
 
-# 1. Inicializamos el historial de chat en la sesión si no existe
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -53,14 +52,13 @@ with st.sidebar:
     except:
         st.error("Backend is not reachable")
 
-# --- PANTALLA PRINCIPAL (Fuera del sidebar) ---
+# --- PANTALLA PRINCIPAL  ---
 
-# 2. Renderizamos el historial de chat (incluyendo sus fuentes si las tiene guardadas)
 for msg in st.session_state.messages:  
     with st.chat_message(msg["role"]):
         st.write(msg["content"])
         
-        # Si el mensaje del asistente guardó fuentes, las mostramos también en el historial
+        
         if "sources" in msg and msg["sources"]:
             with st.expander("View retrieved chunks", expanded=False):
                 for source in msg["sources"]:
@@ -69,14 +67,12 @@ for msg in st.session_state.messages:
                         f"*(similarity score: {source['score']})*"
                     )
 
-# 3. Input de chat (FUERA del bucle del historial)
 if question := st.chat_input("Ask anything about your documents"):
     # Guardar y mostrar mensaje del usuario
     st.session_state.messages.append({"role": "user", "content": question})
     with st.chat_message("user"):
         st.write(question)
 
-    # Generar respuesta del asistente
     with st.chat_message("assistant"):
         with st.spinner("Searching your documents..."):
             try:
@@ -96,10 +92,8 @@ if question := st.chat_input("Ask anything about your documents"):
                 answer = f"Could not reach backend: {e}"
                 sources = []
 
-            # Mostrar respuesta
             st.write(answer)
-
-            # Mostrar fuentes en un expander si existen
+            
             if sources:
                 with st.expander("View retrieved chunks", expanded=False):
                     for source in sources:
@@ -108,7 +102,6 @@ if question := st.chat_input("Ask anything about your documents"):
                             f"*(similarity score: {source['score']})*"
                         )
 
-    # Guardar la respuesta y fuentes en la sesión del chat
     st.session_state.messages.append({
         "role": "assistant",
         "content": answer,
